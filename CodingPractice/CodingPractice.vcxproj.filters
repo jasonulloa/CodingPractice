@@ -18,5 +18,16 @@
     <ClCompile Include="CodingPractice.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="opt1\Opt1.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="opt1\List.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="opt1\Opt1.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
 </Project>

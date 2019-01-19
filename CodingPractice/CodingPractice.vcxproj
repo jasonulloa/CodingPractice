@@ -148,6 +148,11 @@
       </PrecompiledHeaderFile>
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">NotUsing</PrecompiledHeader>
     </ClCompile>
+    <ClCompile Include="opt1\Opt1.cpp" />
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="opt1\List.h" />
+    <ClInclude Include="opt1\Opt1.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
