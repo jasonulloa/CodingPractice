@@ -4,16 +4,23 @@
 #include <stdexcept>
 #include <string>
 
-class OutOfBounds : public std::exception {
+class ListException : public std::exception {
 	private:
+		bool emptyList;
 		int index;
 	public:
-		OutOfBounds(int i) {
+		ListException(bool b, int i) {
+			emptyList = b;
 			index = i;
 		}
 
 		std::string what() {
-			std::string message = "OutOfBounds: The index " + std::to_string(index) + "does not exist.\n";
+			if (emptyList) {
+				std::string message = "ListException: The list is empty.\n";
+
+				return message;
+			}
+			std::string message = "ListException: The index " + std::to_string(index) + "does not exist.\n";
 
 			return message;
 		}
@@ -31,8 +38,8 @@ class List {
 	public:
 		List();  //default construct
 		~List();  //destructor
-		List(const List& other);  //copy constructor
-		List& operator=(const List& other);  //assignment operator
+		List(const List<T>& other);  //copy constructor
+		List<T>& operator=(const List<T>& other);  //assignment operator
 		int size() const;  //returns size of list
 		bool empty() const;  //checks if list is empty
 		T& front();  //returns value at front of list
@@ -54,7 +61,7 @@ class List {
 		void clear();  //clear the list
 
 	private:
-		ListNode* getNodeAt(int pos) const;  //returns a pointer to node at index pos
+		ListNode<T>* getNodeAt(int pos) const;  //returns a pointer to node at index pos; throws exception if empty or out of bounds
 
 		ListNode<T>* head;
 		ListNode<T>* tail;
@@ -62,130 +69,208 @@ class List {
 };
 
 template <typename T>
-List::List() {
+List<T>::List() {
 	this->head = nullptr;
 	this->tail = nullptr;
 	this->counter = 0;
 }
 
 template <typename T>
-List::~List() {
+List<T>::~List() {
 	clear();
 }
 
 template <typename T>
-List::List(const List& other) {
-	if (other.empty()) {
+List<T>::List(const List<T>& other) {
+	if (other.size() < 1) {  //counter should never be negative, so only size() == 0 should reach here
 		this->head = nullptr;
 		this->tail = nullptr;
 		this->counter = 0;
 	}
 	else if (other.size() == 1) {
-		//TODO
+		T tempval = other.front();
+		this->push_front(tempval);
+	}
+	else {  //for size() > 1
+		for (int i = 0; i < other.size(); i++) {
+			T tempval = other.getNodeAt(i);
+			this->push_back(tempval);
+		}
 	}
 }
 
 template <typename T>
-List& List::operator=(const List& other) {
-	//TODO
+List<T>& List<T>::operator=(const List<T>& other) {
+	this->clear();
+
+	if (other.size() < 1) {  //counter should never be negative, so only size() == 0 should reach here
+		this->head = nullptr;
+		this->tail = nullptr;
+		this->counter = 0;
+	}
+	else if (other.size() == 1) {
+		T tempval = other.front();
+		this->push_front(tempval);
+	}
+	else {  //for size() > 1
+		for (int i = 0; i < other.size(); i++) {
+			T tempval = other.getNodeAt(i);
+			this->push_back(tempval);
+		}
+	}
 }
 
 template <typename T>
-int List::size() const {
+int List<T>::size() const {
 	return counter;
 }
 
 template <typename T>
-bool List::empty() const {
+bool List<T>::empty() const {
 	return counter == 0;
 }
 
 template <typename T>
-T& List::front() {
-	ListNode* temp = getNodeAt(0);
+T& List<T>::front() {
+	ListNode<T>* temp = getNodeAt(0);
 	return temp->val;
 }
 
 template <typename T>
-T const & List::front() const {
-	ListNode* temp = getNodeAt(0);
+T const & List<T>::front() const {
+	ListNode<T>* temp = getNodeAt(0);
 	return temp->val;
 }
 
 template <typename T>
-T& List::back() {
-	ListNode* temp = getNodeAt(size() - 1);
+T& List<T>::back() {
+	ListNode<T>* temp = getNodeAt(size() - 1);
 	return temp->val;
 }
 
 template <typename T>
-T const & List::back() const {
-	ListNode* temp = getNodeAt(size() - 1);
+T const & List<T>::back() const {
+	ListNode<T>* temp = getNodeAt(size() - 1);
 	return temp->val;
 }
 
 template <typename T>
-void List::set(int pos, const T& val) {
-	//TODO
+void List<T>::set(int pos, const T& val) {
+	ListNode<T>* temp = getNodeAt(pos);
+	temp->val = val;
 }
 
 template <typename T>
-T& List::get(int pos) {
-	//TODO
+T& List<T>::get(int pos) {
+	ListNode<T>* temp = getNodeAt(pos);
+	return temp->val;
 }
 
 template <typename T>
-T const & List::get(int pos) const {
-	//TODO
+T const & List<T>::get(int pos) const {
+	ListNode<T>* temp = getNodeAt(pos);
+	return temp->val;
 }
 
 template <typename T>
-void List::push_front(const T& val) {
-	//TODO
+void List<T>::push_front(const T& val) {
+	if (counter > 0) {  //if list is not empty
+		ListNode<T>* temp = new ListNode();
+		temp->next = head;
+		temp->prev = nullptr;
+		temp->val = val;
+		head = temp;
+		temp = temp->next;
+		temp->prev = head;
+		counter++;
+	}
+	else {  //counter should never be negative, so this is effectively if == 0
+		ListNode<T>* temp = new ListNode();
+		temp->next = nullptr;
+		temp->prev = nullptr;
+		temp->val = val;
+		head = temp;
+		tail = temp;
+		counter++;
+	}
 }
 
 template <typename T>
-void List::pop_front() {
-	//TODO
+void List<T>::pop_front() {
+	if (empty()) {
+		throw ListException(true, 0);
+		return;
+	}
+
+	ListNode<T>* temp = head;
+	head = temp->next;
+	head->prev = nullptr;
+	delete temp;
 }
 
 template <typename T>
-void List::push_back(const T& val) {
-	//TODO
+void List<T>::push_back(const T& val) {
+	if (counter > 0) {  //if list is not empty
+		ListNode<T>* temp = new ListNode();
+		temp->next = nullptr;
+		temp->prev = tail;
+		temp->val = val;
+		tail = temp;
+		temp = temp->prev;
+		temp->next = tail;
+		counter++;
+	}
+	else {  //counter should never go below 0, so this is effectively if == 0
+		ListNode<T>* temp = new ListNode();
+		temp->next = nullptr;
+		temp->prev = nullptr;
+		temp->val = val;
+		head = temp;
+		tail = temp;
+		counter++;
+	}
 }
 
 template <typename T>
-void List::pop_back() {
-	//TODO
+void List<T>::pop_back() {
+	if (empty()) {
+		throw ListException(true, 0);
+		return;
+	}
+
+	ListNode<T>* temp = tail;
+	tail = temp->prev;
+	tail->next = nullptr;
+	delete temp;
 }
 
 template <typename T>
-void List::insert(int pos, const T& val) {
-	//TODO
+void List<T>::insert(int pos, const T& val) {
+	//TODO//////////////////////////////////////////////////////////
 }
 
 template <typename T>
-void List::erase(int pos) {
-	//TODO
+void List<T>::erase(int pos) {
+	//TODO//////////////////////////////////////////////////////////
 }
 
 template <typename T>
-void List::swap(int pos1, int pos2) {
-	//TODO
+void List<T>::swap(int pos1, int pos2) {
+	//TODO//////////////////////////////////////////////////////////
 }
 
 template <typename T>
-void List::listswap(List& other) {
-	//TODO
+void List<T>::listswap(List& other) {
+	//TODO//////////////////////////////////////////////////////////
 }
 
 template <typename T>
-void List::reverse() {
-	//TODO
+void List<T>::reverse() {
+	//TODO//////////////////////////////////////////////////////////
 }
 
 template <typename T>
-void List::clear() {
+void List<T>::clear() {
 	while (head != nullptr) {
 		ListNode<T>* oldhead = head;
 		head = head->next;
@@ -196,7 +281,12 @@ void List::clear() {
 }
 
 template <typename T>
-ListNode* List::getNodeAt(int pos) const {
+ListNode<T>* List<T>::getNodeAt(int pos) const {
+	if (empty()) {
+		throw ListException(true, pos);
+		return nullptr;
+	}
+
 	ListNode *temp = head;
 
 	if (pos >= 0 && pos < counter) {
@@ -208,7 +298,7 @@ ListNode* List::getNodeAt(int pos) const {
 		return temp;
 	}
 	else {
-		throw OutOfBounds(pos);
+		throw ListException(false, pos);
 		return nullptr;
 	}
 }
