@@ -50,9 +50,9 @@ class List {
 		T& get(int pos);  //returns value at index pos
 		T const & get(int pos) const;  //returns const value at index pos
 		void push_front(const T& val);  //adds value to front of list
-		void pop_front();  //removes element from front of list
+		void pop_front();  //removes element from front of list; throws exception if list is empty
 		void push_back(const T& val);  //adds value to back of list
-		void pop_back();  //removes element from back of list
+		void pop_back();  //removes element from back of list; throws exception if list is empty
 		void insert(int pos, const T& val);  //inserts a value at index pos
 		void erase(int pos);  //erases element at index pos
 		void swap(int pos1, int pos2);  //swaps values between nodes at indicies pos1 and pos2
@@ -61,7 +61,7 @@ class List {
 		void clear();  //clear the list
 
 	private:
-		ListNode<T>* getNodeAt(int pos) const;  //returns a pointer to node at index pos; throws exception if empty or out of bounds
+		ListNode<T>* getNodeAt(int pos) const;  //returns a pointer to node at pos; throws exception if empty or out of bounds
 
 		ListNode<T>* head;
 		ListNode<T>* tail;
