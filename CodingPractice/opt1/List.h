@@ -93,7 +93,7 @@ List<T>::List(const List<T>& other) {
 	}
 	else {  //for size() > 1
 		for (int i = 0; i < other.size(); i++) {
-			T tempval = other.getNodeAt(i);
+			T tempval = other.getNodeAt(i)->val;
 			this->push_back(tempval);
 		}
 	}
@@ -114,7 +114,7 @@ List<T>& List<T>::operator=(const List<T>& other) {
 	}
 	else {  //for size() > 1
 		for (int i = 0; i < other.size(); i++) {
-			T tempval = other.getNodeAt(i);
+			T tempval = other.getNodeAt(i)->val;
 			this->push_back(tempval);
 		}
 	}
