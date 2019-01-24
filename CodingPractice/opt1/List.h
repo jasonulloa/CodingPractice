@@ -53,10 +53,9 @@ class List {
 		void pop_front();  //removes element from front of list; throws exception if list is empty
 		void push_back(const T& val);  //adds value to back of list
 		void pop_back();  //removes element from back of list; throws exception if list is empty
-		void insert(int pos, const T& val);  //inserts a value at index pos
-		void erase(int pos);  //erases element at index pos
-		void swap(int pos1, int pos2);  //swaps values between nodes at indicies pos1 and pos2
-		void listswap(List& other);  //swaps contents of list with other list
+		void insert(int pos, const T& val);  //inserts a value at index pos; throws exception if out of bounds
+		void erase(int pos);  //erases element at index pos; throws exception if out of bounds
+		void swap(int pos1, int pos2);  //swaps values between nodes at pos1 and pos2
 		void reverse();  //reverses the order of elements in list
 		void clear();  //clear the list
 
@@ -199,13 +198,20 @@ template <typename T>
 void List<T>::pop_front() {
 	if (empty()) {
 		throw ListException(true, 0);
-		return;
 	}
 
 	ListNode<T>* temp = head;
-	head = temp->next;
-	head->prev = nullptr;
+	if (head->next != nullptr) {  //if list size() > 1
+		head = temp->next;
+		head->prev = nullptr;
+	}
+	else {  //if list size() == 1
+		tail = nullptr;
+		head = nullptr;
+	}
+
 	delete temp;
+	counter--;
 }
 
 template <typename T>
@@ -235,38 +241,88 @@ template <typename T>
 void List<T>::pop_back() {
 	if (empty()) {
 		throw ListException(true, 0);
-		return;
 	}
 
 	ListNode<T>* temp = tail;
-	tail = temp->prev;
-	tail->next = nullptr;
+	if (tail->prev != nullptr) {  //if list size() > 1
+		tail = temp->prev;
+		tail->next = nullptr;
+	}
+	else {  //if list size() == 1
+		tail = nullptr;
+		head = nullptr;
+	}
+	
 	delete temp;
+	counter--;
 }
 
 template <typename T>
 void List<T>::insert(int pos, const T& val) {
-	//TODO//////////////////////////////////////////////////////////
+	if (pos < 0 || pos > size()) {
+		throw ListException(false, pos);
+	}
+
+	if (pos == 0) {
+		push_front(val);
+		return;
+	}
+
+	if (pos > 0 && pos < size()) {
+		ListNode<T>* oldpos = getNodeAt(pos);
+		ListNode<T>* newpos = new ListNode();
+		newpos->prev = oldpos->prev;
+		newpos->next = oldpos;
+		oldpos->prev->next = newpos;
+		oldpos->prev = newpos;
+		counter++;
+		return;
+	}
+
+	push_back(val);
 }
 
 template <typename T>
 void List<T>::erase(int pos) {
-	//TODO//////////////////////////////////////////////////////////
+	if (pos < 0 || pos >= size()) {
+		throw ListException(false, pos);
+	}
+
+	if (pos == 0) {
+		pop_front();
+		return;
+	}
+
+	if (pos > 0 && pos < size()) {
+		ListNode<T>* temp = getNodeAt(pos);
+		temp->prev->next = temp->next;
+		temp->next->prev = temp->prev;
+		delete temp;
+		counter--;
+		return;
+	}
+
+	pop_back();
 }
 
 template <typename T>
 void List<T>::swap(int pos1, int pos2) {
-	//TODO//////////////////////////////////////////////////////////
-}
-
-template <typename T>
-void List<T>::listswap(List& other) {
-	//TODO//////////////////////////////////////////////////////////
+	T val1 = get(pos1);
+	T val2 = get(pos2);
+	set(pos1, val2);
+	set(pos2, val1);
 }
 
 template <typename T>
 void List<T>::reverse() {
-	//TODO//////////////////////////////////////////////////////////
+	int headpos = 0;
+	int tailpos = size() - 1;
+
+	while (tailpos > headpos) {
+		swap(headpos, tailpos);
+		headpos++;
+		tailpos--;
+	}
 }
 
 template <typename T>
@@ -284,7 +340,6 @@ template <typename T>
 ListNode<T>* List<T>::getNodeAt(int pos) const {
 	if (empty()) {
 		throw ListException(true, pos);
-		return nullptr;
 	}
 
 	ListNode *temp = head;
@@ -299,7 +354,6 @@ ListNode<T>* List<T>::getNodeAt(int pos) const {
 	}
 	else {
 		throw ListException(false, pos);
-		return nullptr;
 	}
 }
 #endif
