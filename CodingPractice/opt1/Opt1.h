@@ -6,5 +6,6 @@ class Opt1 {
 	public:
 		Opt1();
 		~Opt1();
+		void run();
 };
 #endif
