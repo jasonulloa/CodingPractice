@@ -58,6 +58,7 @@ class List {
 		void swap(int pos1, int pos2);  //swaps values between nodes at pos1 and pos2
 		void reverse();  //reverses the order of elements in list
 		void clear();  //clear the list
+		void print_list();  //prints the list contents; throws exception if list is empty
 
 	private:
 		ListNode<T>* getNodeAt(int pos) const;  //returns a pointer to node at pos; throws exception if empty or out of bounds
@@ -100,7 +101,13 @@ List<T>::List(const List<T>& other) {
 
 template <typename T>
 List<T>& List<T>::operator=(const List<T>& other) {
-	this->clear();
+	if (this == &other) {
+		return *this;
+	}
+
+	if (!this->empty()) {
+		this->clear();
+	}
 
 	if (other.size() < 1) {  //counter should never be negative, so only size() == 0 should reach here
 		this->head = nullptr;
@@ -117,6 +124,8 @@ List<T>& List<T>::operator=(const List<T>& other) {
 			this->push_back(tempval);
 		}
 	}
+
+	return *this;
 }
 
 template <typename T>
@@ -174,7 +183,7 @@ T const & List<T>::get(int pos) const {
 template <typename T>
 void List<T>::push_front(const T& val) {
 	if (counter > 0) {  //if list is not empty
-		ListNode<T>* temp = new ListNode();
+		ListNode<T>* temp = new ListNode<T>();
 		temp->next = head;
 		temp->prev = nullptr;
 		temp->val = val;
@@ -184,7 +193,7 @@ void List<T>::push_front(const T& val) {
 		counter++;
 	}
 	else {  //counter should never be negative, so this is effectively if == 0
-		ListNode<T>* temp = new ListNode();
+		ListNode<T>* temp = new ListNode<T>();
 		temp->next = nullptr;
 		temp->prev = nullptr;
 		temp->val = val;
@@ -217,7 +226,7 @@ void List<T>::pop_front() {
 template <typename T>
 void List<T>::push_back(const T& val) {
 	if (counter > 0) {  //if list is not empty
-		ListNode<T>* temp = new ListNode();
+		ListNode<T>* temp = new ListNode<T>();
 		temp->next = nullptr;
 		temp->prev = tail;
 		temp->val = val;
@@ -227,7 +236,7 @@ void List<T>::push_back(const T& val) {
 		counter++;
 	}
 	else {  //counter should never go below 0, so this is effectively if == 0
-		ListNode<T>* temp = new ListNode();
+		ListNode<T>* temp = new ListNode<T>();
 		temp->next = nullptr;
 		temp->prev = nullptr;
 		temp->val = val;
@@ -270,7 +279,8 @@ void List<T>::insert(int pos, const T& val) {
 
 	if (pos > 0 && pos < size()) {
 		ListNode<T>* oldpos = getNodeAt(pos);
-		ListNode<T>* newpos = new ListNode();
+		ListNode<T>* newpos = new ListNode<T>();
+		newpos->val = val;
 		newpos->prev = oldpos->prev;
 		newpos->next = oldpos;
 		oldpos->prev->next = newpos;
@@ -337,12 +347,26 @@ void List<T>::clear() {
 }
 
 template <typename T>
+void List<T>::print_list() {
+	if (empty()) {
+		throw ListException(true, 0);
+	}
+
+	std::cout << "The list contains: ";
+	for (int i = 0; i < this->size(); i++) {
+		std::cout << this->get(i) << ", ";
+	}
+	
+	std::cout << std::endl;
+}
+
+template <typename T>
 ListNode<T>* List<T>::getNodeAt(int pos) const {
 	if (empty()) {
 		throw ListException(true, pos);
 	}
 
-	ListNode *temp = head;
+	ListNode<T>* temp = head;
 
 	if (pos >= 0 && pos < counter) {
 		while (temp != nullptr && pos > 0) {

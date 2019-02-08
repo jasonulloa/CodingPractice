@@ -29,5 +29,8 @@
     <ClInclude Include="opt1\Opt1.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="opt1\Unordered_Set.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
 </Project>
