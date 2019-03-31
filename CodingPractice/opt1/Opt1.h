@@ -9,5 +9,6 @@ class Opt1 {
 		~Opt1();
 		void run();
 		void list_test();
+		void set_test();
 };
 #endif

@@ -41,8 +41,7 @@ void Opt1::run() {
 				break;
 			}
 			case 2: {
-				std::cout << "Normally, you'd see some tests run here. However, I haven't finished\n" <<
-					"coding them yet. Please wait until then.\n" << std::endl;
+				set_test();
 				break;
 			}
 			case 3: {
@@ -115,4 +114,10 @@ void Opt1::list_test() {
 
 	std::cout << "\nEnd of tests." << std::endl;
 	delete intlist1;
+}
+
+void Opt1::set_test() {
+	std::cout << "Normally, you'd see some tests run here. However, I haven't finished\n" <<
+		"coding them yet. Please wait until then.\n" << std::endl;
+	//TODO
 }
