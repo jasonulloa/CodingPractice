@@ -59,6 +59,8 @@ class List {
 		void reverse();  //reverses the order of elements in list
 		void clear();  //clear the list
 		void print_list();  //prints the list contents; throws exception if list is empty
+		ListNode<T>* headnode() const;  //returns head
+		ListNode<T>* tailnode() const;  //returns tail
 
 	private:
 		ListNode<T>* getNodeAt(int pos) const;  //returns a pointer to node at pos; throws exception if empty or out of bounds
@@ -379,5 +381,15 @@ ListNode<T>* List<T>::getNodeAt(int pos) const {
 	else {
 		throw ListException(false, pos);
 	}
+}
+
+template <typename T>
+ListNode<T>* List<T>::headnode() const {
+	return this->head;
+}
+
+template <typename T>
+ListNode<T>* List<T>::tailnode() const {
+	return this->tail;
 }
 #endif
