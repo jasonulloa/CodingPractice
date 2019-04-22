@@ -19,7 +19,8 @@ void Opt1::run() {
 	menu << "\nOption #1: Data Structure Test Runs\n" << std::endl;
 	menu << "1. Doubly Linked List Tests" << std::endl;
 	menu << "2. Unordered Set Tests" << std::endl;
-	menu << "3. Exit" << std::endl << ">";
+	menu << "3. Hashtable Tests" << std::endl;
+	menu << "4. Exit" << std::endl << ">";
 
 	while (loop) {  //loop until "Exit" is selected
 		std::cout << menu.str();
@@ -45,6 +46,10 @@ void Opt1::run() {
 				break;
 			}
 			case 3: {
+				ht_test();
+				break;
+			}
+			case 4: {
 				std::cout << "Returning to Main Menu.\n" << std::endl;
 				loop = false;
 				break;
@@ -218,4 +223,9 @@ void Opt1::set_test() {
 	delete intset4;
 	delete intset5;
 	delete intset6;
+}
+
+void Opt1::ht_test() {
+	std::cout << "Got to finish coding the hashtable data structure first.\nThe tests will come later.\n"
+		<< std::endl;
 }
