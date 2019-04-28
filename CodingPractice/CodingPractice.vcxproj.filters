@@ -32,5 +32,8 @@
     <ClInclude Include="opt1\Unordered_Set.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="opt1\Hashtable.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
 </Project>

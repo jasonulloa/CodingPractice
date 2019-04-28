@@ -63,7 +63,7 @@ class List {
 		ListNode<T>* tailnode() const;  //returns tail
 
 	private:
-		ListNode<T>* getNodeAt(int pos) const;  //returns a pointer to node at pos; throws exception if empty or out of bounds
+		ListNode<T>* get_node_at(int pos) const;  //returns a pointer to node at pos; throws exception if empty or out of bounds
 
 		ListNode<T>* head;
 		ListNode<T>* tail;
@@ -95,7 +95,7 @@ List<T>::List(const List<T>& other) {
 	}
 	else {  //for size() > 1
 		for (int i = 0; i < other.size(); i++) {
-			T tempval = other.getNodeAt(i)->val;
+			T tempval = other.get_node_at(i)->val;
 			this->push_back(tempval);
 		}
 	}
@@ -122,7 +122,7 @@ List<T>& List<T>::operator=(const List<T>& other) {
 	}
 	else {  //for size() > 1
 		for (int i = 0; i < other.size(); i++) {
-			T tempval = other.getNodeAt(i)->val;
+			T tempval = other.get_node_at(i)->val;
 			this->push_back(tempval);
 		}
 	}
@@ -142,43 +142,43 @@ bool List<T>::empty() const {
 
 template <typename T>
 T& List<T>::front() {
-	ListNode<T>* temp = getNodeAt(0);
+	ListNode<T>* temp = get_node_at(0);
 	return temp->val;
 }
 
 template <typename T>
 T const & List<T>::front() const {
-	ListNode<T>* temp = getNodeAt(0);
+	ListNode<T>* temp = get_node_at(0);
 	return temp->val;
 }
 
 template <typename T>
 T& List<T>::back() {
-	ListNode<T>* temp = getNodeAt(size() - 1);
+	ListNode<T>* temp = get_node_at(size() - 1);
 	return temp->val;
 }
 
 template <typename T>
 T const & List<T>::back() const {
-	ListNode<T>* temp = getNodeAt(size() - 1);
+	ListNode<T>* temp = get_node_at(size() - 1);
 	return temp->val;
 }
 
 template <typename T>
 void List<T>::set(int pos, const T& val) {
-	ListNode<T>* temp = getNodeAt(pos);
+	ListNode<T>* temp = get_node_at(pos);
 	temp->val = val;
 }
 
 template <typename T>
 T& List<T>::get(int pos) {
-	ListNode<T>* temp = getNodeAt(pos);
+	ListNode<T>* temp = get_node_at(pos);
 	return temp->val;
 }
 
 template <typename T>
 T const & List<T>::get(int pos) const {
-	ListNode<T>* temp = getNodeAt(pos);
+	ListNode<T>* temp = get_node_at(pos);
 	return temp->val;
 }
 
@@ -280,7 +280,7 @@ void List<T>::insert(int pos, const T& val) {
 	}
 
 	if (pos > 0 && pos < size()) {
-		ListNode<T>* oldpos = getNodeAt(pos);
+		ListNode<T>* oldpos = get_node_at(pos);
 		ListNode<T>* newpos = new ListNode<T>();
 		newpos->val = val;
 		newpos->prev = oldpos->prev;
@@ -306,7 +306,7 @@ void List<T>::erase(int pos) {
 	}
 
 	if (pos > 0 && pos < size()) {
-		ListNode<T>* temp = getNodeAt(pos);
+		ListNode<T>* temp = get_node_at(pos);
 		temp->prev->next = temp->next;
 		temp->next->prev = temp->prev;
 		delete temp;
@@ -363,7 +363,7 @@ void List<T>::print_list() {
 }
 
 template <typename T>
-ListNode<T>* List<T>::getNodeAt(int pos) const {
+ListNode<T>* List<T>::get_node_at(int pos) const {
 	if (empty()) {
 		throw ListException(true, pos);
 	}

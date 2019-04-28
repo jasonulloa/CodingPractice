@@ -151,6 +151,7 @@
     <ClCompile Include="opt1\Opt1.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="opt1\Hashtable.h" />
     <ClInclude Include="opt1\List.h" />
     <ClInclude Include="opt1\Opt1.h" />
     <ClInclude Include="opt1\Unordered_Set.h" />
