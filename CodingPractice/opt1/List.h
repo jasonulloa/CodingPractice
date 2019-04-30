@@ -300,12 +300,12 @@ void List<T>::erase(int pos) {
 		throw ListException(false, pos);
 	}
 
-	if (pos == 0) {
+	if (pos == 0) {  //for first pos
 		pop_front();
 		return;
 	}
 
-	if (pos > 0 && pos < size()) {
+	if (pos > 0 && pos < size() - 1) {  //for pos between first and last
 		ListNode<T>* temp = get_node_at(pos);
 		temp->prev->next = temp->next;
 		temp->next->prev = temp->prev;
@@ -314,7 +314,7 @@ void List<T>::erase(int pos) {
 		return;
 	}
 
-	pop_back();
+	pop_back();  //for last pos
 }
 
 template <typename T>
