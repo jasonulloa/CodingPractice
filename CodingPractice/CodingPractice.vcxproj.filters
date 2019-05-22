@@ -24,6 +24,9 @@
     <ClCompile Include="opt2\Opt2.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="opt2\GL1.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="opt1\List.h">
@@ -39,6 +42,9 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="opt2\Opt2.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="opt2\GL1.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>

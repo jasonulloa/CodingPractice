@@ -20,7 +20,7 @@ void Opt1::run() {
 	menu << "1. Doubly Linked List Tests" << std::endl;
 	menu << "2. Unordered Set Tests" << std::endl;
 	menu << "3. Hashtable Tests" << std::endl;
-	menu << "4. Exit" << std::endl << ">";
+	menu << "4. Return to Main Menu" << std::endl << ">";
 
 	while (loop) {  //loop until "Exit" is selected
 		std::cout << menu.str();
