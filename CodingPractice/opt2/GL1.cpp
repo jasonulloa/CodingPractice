@@ -15,8 +15,12 @@ int GL1() {
 	glutInitWindowSize(400, 400);
 	glutSetOption(GLUT_ACTION_ON_WINDOW_CLOSE, GLUT_ACTION_GLUTMAINLOOP_RETURNS);
 	glutCreateWindow("Test Window");
-	init();
+	int menu = glutCreateMenu(rtclick);
+	glutSetMenu(menu);
+	glutAddMenuEntry("Quit", 0);
+	glutAttachMenu(GLUT_RIGHT_BUTTON);
 	glutDisplayFunc(display);
+	init();
 	glutMainLoop();
 
 	return 0;
@@ -52,4 +56,12 @@ void display() {
 
 void idle() {
 	
+}
+
+void rtclick(int val) {
+	switch (val) {
+		case 0:
+			glutLeaveMainLoop();
+			break;
+	}
 }
