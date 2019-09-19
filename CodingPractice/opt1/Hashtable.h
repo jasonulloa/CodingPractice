@@ -10,7 +10,6 @@ unsigned int hashfunc(const T& val) {  //returns an unsigned int value hashed fr
 	std::ostringstream oss;
 	oss << val;
 	std::string ostr = oss.str();  //converts input to string
-	int ostrlen = ostr.length();
 	const char* hashstr = ostr.c_str();  //converts string to C-string
 	unsigned int hashint = 31;
 
@@ -79,8 +78,8 @@ Hashtable<T>::Hashtable(const Hashtable<T>& other) {
 	for (int i = 0; i < this->table_size; i++) {
 		data[i] = new std::vector<T>;
 		std::vector<T>* othervec = other.get_vector(i);
-		for (unsigned int i = 0; i < othervec->size(); i++) {
-			T tempval = (*othervec)[i];
+		for (unsigned int j = 0; j < othervec->size(); j++) {
+			T tempval = (*othervec)[j];
 			data[i]->emplace_back(tempval);
 		}
 	}

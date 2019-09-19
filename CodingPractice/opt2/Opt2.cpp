@@ -18,7 +18,8 @@ void Opt2::run() {
 	std::ostringstream menu;
 	menu << "\nOption #2: OpenGL Stuff\n" << std::endl;
 	menu << "1. OpenGL Window Test" << std::endl;
-	menu << "2. Return to Main Menu" << std::endl << ">";
+	menu << "2. OpenGL View Test" << std::endl;
+	menu << "3. Return to Main Menu" << std::endl << ">";
 
 	while (loop) {  //loop until "Exit" is selected
 		std::cout << menu.str();
@@ -40,6 +41,10 @@ void Opt2::run() {
 				break;
 			}
 			case 2: {
+				gl_view_test();
+				break;
+			}
+			case 3: {
 				std::cout << "Returning to Main Menu.\n" << std::endl;
 				loop = false;
 				break;
@@ -55,5 +60,11 @@ void Opt2::run() {
 void Opt2::gl_test() {
 	std::cout << "Testing...." << std::endl;
 	GL1();
+	std::cout << "Test complete." << std::endl;
+}
+
+void Opt2::gl_view_test() {
+	std::cout << "Testing...." << std::endl;
+	GL2();
 	std::cout << "Test complete." << std::endl;
 }

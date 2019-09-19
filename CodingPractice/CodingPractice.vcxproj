@@ -156,6 +156,7 @@
     </ClCompile>
     <ClCompile Include="opt1\Opt1.cpp" />
     <ClCompile Include="opt2\GL1.cpp" />
+    <ClCompile Include="opt2\GL2.cpp" />
     <ClCompile Include="opt2\Opt2.cpp" />
   </ItemGroup>
   <ItemGroup>
@@ -164,6 +165,7 @@
     <ClInclude Include="opt1\Opt1.h" />
     <ClInclude Include="opt1\Unordered_Set.h" />
     <ClInclude Include="opt2\GL1.h" />
+    <ClInclude Include="opt2\GL2.h" />
     <ClInclude Include="opt2\Opt2.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />

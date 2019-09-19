@@ -3,8 +3,7 @@
 #define GL1_H
 
 int GL1();
-void init();
-void display();
-void idle();
-void rtclick(int val);
+void init1();
+void display1();
+void rtclick1(int val);
 #endif
