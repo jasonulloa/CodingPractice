@@ -59,12 +59,12 @@ void Opt2::run() {
 
 void Opt2::gl_test() {
 	std::cout << "Testing...." << std::endl;
-	GL1();
+	GL1::GL1();
 	std::cout << "Test complete." << std::endl;
 }
 
 void Opt2::gl_view_test() {
 	std::cout << "Testing...." << std::endl;
-	GL2();
+	GL2::GL2();
 	std::cout << "Test complete." << std::endl;
 }

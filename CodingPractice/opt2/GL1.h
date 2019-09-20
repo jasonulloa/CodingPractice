@@ -1,9 +1,12 @@
 #pragma once
 #ifndef GL1_H
 #define GL1_H
+#include "GLinclude.h"
 
-int GL1();
-void init1();
-void display1();
-void rtclick1(int val);
+namespace GL1 {
+	int GL1();
+	void init();
+	void display();
+	void rtclick(int val);
+}
 #endif

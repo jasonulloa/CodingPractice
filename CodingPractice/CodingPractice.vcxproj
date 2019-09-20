@@ -166,6 +166,7 @@
     <ClInclude Include="opt1\Unordered_Set.h" />
     <ClInclude Include="opt2\GL1.h" />
     <ClInclude Include="opt2\GL2.h" />
+    <ClInclude Include="opt2\GLinclude.h" />
     <ClInclude Include="opt2\Opt2.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />

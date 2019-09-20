@@ -1,9 +1,14 @@
 #pragma once
 #ifndef GL2_H
 #define GL2_H
+#include "GLinclude.h"
 
-int GL2();
-void init2();
-void display2();
-void rtclick2(int val);
+namespace GL2 {
+	int GL2();
+	void init();
+	void display();
+	void idle();
+	void resizeWindow(int w, int h);
+	void rtclick(int val);
+};
 #endif
