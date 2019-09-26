@@ -1,6 +1,6 @@
 #include "GL2.h"
 
-struct Viewpoint {
+struct Viewpoint {  //struct for camera view
 	double Translate[3];
 	double Rotate[3];
 	double Scale[3];
@@ -25,6 +25,8 @@ int GL2::GL2() {
 	glutAttachMenu(GLUT_RIGHT_BUTTON);
 	glutDisplayFunc(display);
 	glutReshapeFunc(resizeWindow);
+	glutKeyboardFunc(move);
+	glutSpecialFunc(turn);
 	glutIdleFunc(idle);
 	init();
 	glutMainLoop();
@@ -47,39 +49,43 @@ void GL2::display() {
 	glClearDepth(1.0);
 	glLoadIdentity();
 	gluLookAt(vp.Translate[0], vp.Translate[1], vp.Translate[2], 0.0, 0.0, 0.0, 0.0, 1.0, 0.0);  //+X = left, +Y = up, +Z = forward
+	glRotatef(static_cast<GLfloat>(vp.Rotate[0]), 1.0, 0.0, 0.0);  //rotation about x-axis; up/down
+	glRotatef(static_cast<GLfloat>(vp.Rotate[1]), 0.0, 1.0, 0.0);  //rotation about y-axis; left/right
+	glRotatef(static_cast<GLfloat>(vp.Rotate[2]), 0.0, 0.0, -1.0);  //rotation about z-axis; clockwise/counter-clockwise
+	glScalef(static_cast<GLfloat>(vp.Scale[0]), static_cast<GLfloat>(vp.Scale[1]), static_cast<GLfloat>(vp.Scale[2]));
 
 	glBegin(GL_QUADS);
-	glColor3f(0.0, 1.0, 0.0);
+	glColor3f(0.0, 1.0, 0.0);  //top
 	glVertex3f(1.0, 1.0, -1.0);
 	glVertex3f(-1.0, 1.0, -1.0);
 	glVertex3f(-1.0, 1.0, 1.0);
 	glVertex3f(1.0, 1.0, 1.0);
 
-	glColor3f(1.0, 0.0, 0.0);
+	glColor3f(1.0, 0.0, 0.0);  //bottom
 	glVertex3f(1.0, -1.0, 1.0);
 	glVertex3f(-1.0, -1.0, 1.0);
 	glVertex3f(-1.0, -1.0, -1.0);
 	glVertex3f(1.0, -1.0, -1.0);
 
-	glColor3f(0.0, 1.0, 0.0);
+	glColor3f(0.0, 1.0, 1.0);  //back
 	glVertex3f(1.0, 1.0, 1.0);
 	glVertex3f(-1.0, 1.0, 1.0);
 	glVertex3f(-1.0, -1.0, 1.0);
 	glVertex3f(1.0, -1.0, 1.0);
 
-	glColor3f(1.0, 1.0, 0.0);
+	glColor3f(1.0, 1.0, 0.0);  //front
 	glVertex3f(1.0, -1.0, -1.0);
 	glVertex3f(-1.0, -1.0, -1.0);
 	glVertex3f(-1.0, 1.0, -1.0);
 	glVertex3f(1.0, 1.0, -1.0);
 
-	glColor3f(0.0, 0.0, 1.0);
+	glColor3f(0.0, 0.0, 1.0);  //right
 	glVertex3f(-1.0, 1.0, 1.0);
 	glVertex3f(-1.0, 1.0, -1.0);
 	glVertex3f(-1.0, -1.0, -1.0);
 	glVertex3f(-1.0, -1.0, 1.0);
 
-	glColor3f(1.0, 0.0, 1.0);
+	glColor3f(1.0, 0.0, 1.0);  //left
 	glVertex3f(1.0, 1.0, -1.0);
 	glVertex3f(1.0, 1.0, 1.0);
 	glVertex3f(1.0, -1.0, 1.0);
@@ -111,5 +117,65 @@ void GL2::rtclick(int val) {
 		case 0:
 			glutLeaveMainLoop();
 			break;
+	}
+}
+
+void GL2::move(unsigned char key, int x, int y) {
+	if (key == 119) {  //w; go forward
+		vp.Translate[2] += 0.1;
+	}
+	if (key == 115) {  //s; go backward
+		vp.Translate[2] -= 0.1;
+	}
+	if (key == 97) {  //a; go left
+		vp.Translate[0] += 0.1;
+	}
+	if (key == 100) {  //d; go right
+		vp.Translate[0] -= 0.1;
+	}
+}
+
+void GL2::turn(int key, int x, int y) {
+	if (key == GLUT_KEY_LEFT) {
+		if (glutGetModifiers() == GLUT_ACTIVE_CTRL) {
+			vp.Rotate[2] += 0.5;  //rotate counter-clockwise
+		}
+		else {
+			vp.Rotate[1] += 0.5;  //rotate left
+		}
+	}
+	if (key == GLUT_KEY_RIGHT) {
+		if (glutGetModifiers() == GLUT_ACTIVE_CTRL) {
+			vp.Rotate[2] -= 0.5;  //rotate clockwise
+		}
+		else {
+			vp.Rotate[1] -= 0.5;  //rotate right
+		}
+	}
+	if (key == GLUT_KEY_UP) {
+		if (glutGetModifiers() == GLUT_ACTIVE_CTRL) {
+			vp.Rotate[0] += 0.5;  //rotate up
+		}
+		else {
+			vp.Translate[1] += 0.1;  //go up
+		}
+	}
+	if (key == GLUT_KEY_DOWN) {
+		if (glutGetModifiers() == GLUT_ACTIVE_CTRL) {
+			vp.Rotate[0] -= 0.5;  //rotate down
+		}
+		else {
+			vp.Translate[1] -= 0.1;  //go down
+		}
+	}
+	if (key == GLUT_KEY_PAGE_UP) {  //scale up
+		vp.Scale[0] += 0.05;
+		vp.Scale[1] += 0.05;
+		vp.Scale[2] += 0.05;
+	}
+	if (key == GLUT_KEY_PAGE_DOWN) {  //scale down
+		vp.Scale[0] -= 0.05;
+		vp.Scale[1] -= 0.05;
+		vp.Scale[2] -= 0.05;
 	}
 }

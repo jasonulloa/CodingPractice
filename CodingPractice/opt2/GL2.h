@@ -10,5 +10,7 @@ namespace GL2 {
 	void idle();
 	void resizeWindow(int w, int h);
 	void rtclick(int val);
+	void move(unsigned char key, int x, int y);
+	void turn(int key, int x, int y);
 };
 #endif
