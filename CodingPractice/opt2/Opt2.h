@@ -3,6 +3,7 @@
 #define OPT2_H
 #include "GL1.h"
 #include "GL2.h"
+#include "GL3.h"
 
 class Opt2 {
 	public:
@@ -11,5 +12,6 @@ class Opt2 {
 		void run();
 		void gl_test();
 		void gl_view_test();
+		void gl_raytracer();
 };
 #endif
