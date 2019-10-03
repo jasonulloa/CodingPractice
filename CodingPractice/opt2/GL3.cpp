@@ -2,6 +2,7 @@
 #include <fstream>
 #include <iostream>
 #include <string>
+#include <sstream>
 
 constexpr auto PI = 3.14159265358979;
 constexpr auto ZERO = 1e-4;
@@ -102,14 +103,156 @@ void GL3::rtclick(int val) {
 
 void GL3::loadScene(char* argv) {
 	num_lights = num_spheres = num_triangles = 0;
+	int num_objects = 0, count = 0;
+	bool set_amb = false, set_sphere = false, set_light = false, set_pos = false, set_rad = false, set_dif = false, set_spe = false, set_shi = false, set_col = false;
+	Triangle tri;
+	Sphere sph;
+	Light li;
 	std::ifstream file(argv);
 	if (!file.is_open()) {
 		std::cout << "Error opening file: " << argv << std::endl;
 		glutLeaveMainLoop();
 	}
 	
-	std::string line;
-	getline(file, line);
-	std::cout << "The first line says: " << line << std::endl;
+	std::string line, word;
+	std::stringstream ss;
+	while (getline(file, line)) {
+		ss.str(line);
+		while (getline(ss, word, ' ')) {
+			if (num_objects == 0) {  //get number of objects
+				num_objects = std::stoi(word);
+				continue;
+			}
+			if (set_amb) {  //set up ambient light
+				if (count < 3) {
+					ambient_light[count] = std::stod(word);
+					count++;
+					if (count == 3) {
+						count = 0;
+						set_amb = false;
+					}
+					continue;
+				}
+			}
+			if (set_sphere) {  //set up spheres
+				if (set_pos) {  //set sphere position
+					if (count < 3) {
+						sph.position[count] = std::stod(word);
+						count++;
+						if (count == 3) {
+							count = 0;
+							set_pos = false;
+						}
+						continue;
+					}
+				}
+				if (set_rad) {	//set sphere radius
+					sph.radius = std::stod(word);
+					set_rad = false;
+					continue;
+				}
+				if (set_dif) {  //set sphere color diffuse
+					if (count < 3) {
+						sph.color_diffuse[count] = std::stod(word);
+						count++;
+						if (count == 3) {
+							count = 0;
+							set_dif = false;
+						}
+						continue;
+					}
+				}
+				if (set_spe) {  //set sphere color specular
+					if (count < 3) {
+						sph.color_specular[count] = std::stod(word);
+						count++;
+						if (count == 3) {
+							count = 0;
+							set_spe = false;
+						}
+						continue;
+					}
+				}
+				if (set_shi) {  //set sphere shininess
+					sph.position[count] = std::stod(word);
+					set_shi = false;
+					continue;
+				}
+				if (word == "pos:") {
+					set_pos = true;
+					continue;
+				}
+				if (word == "rad:") {
+					set_rad = true;
+					continue;
+				}
+				if (word == "dif:") {
+					set_dif = true;
+					continue;
+				}
+				if (word == "spe:") {
+					set_spe = true;
+					continue;
+				}
+				if (word == "shi:") {
+					set_shi = true;
+					continue;
+				}
+
+				set_sphere = false;
+				num_spheres++;
+			}
+			if (set_light) {
+				if (set_pos) {
+					if (count < 3) {
+						li.position[count] = std::stod(word);
+						count++;
+						if (count == 3) {
+							count = 0;
+							set_pos = false;
+						}
+						continue;
+					}
+				}
+				if (set_col) {
+					if (count < 3) {
+						li.color[count] = std::stod(word);
+						count++;
+						if (count == 3) {
+							count = 0;
+							set_col = false;
+						}
+						continue;
+					}
+				}
+				if (word == "pos:") {
+					set_pos = true;
+					continue;
+				}
+				if (word == "col:") {
+					set_col = true;
+					continue;
+				}
+
+				set_light = false;
+				num_lights++;
+			}
+			if (word == "amb:") {
+				set_amb = true;
+				continue;
+			}
+			if (word == "sphere") {
+				set_sphere = true;
+				continue;
+			}
+			if (word == "light") {
+				set_light = true;
+				continue;
+			}
+			std::cout << "Here is a word: " << word << std::endl;
+		}
+		ss.clear();
+	}
+	
 	file.close();
 }
