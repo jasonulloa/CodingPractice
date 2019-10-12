@@ -1,8 +1,8 @@
 #include "GL3.h"
-#include <fstream>
 #include <iostream>
 #include <string>
-#include <sstream>
+#include <cstdio>
+#include <cstdlib>
 
 constexpr auto PI = 3.14159265358979;
 constexpr auto ZERO = 1e-4;
@@ -21,6 +21,7 @@ double ambient_light[3];
 int num_triangles;
 int num_spheres;
 int num_lights;
+int once;
 
 int GL3::GL3(int argc, char** argv) {
 	glutInit(&argc, argv);
@@ -42,16 +43,17 @@ int GL3::GL3(int argc, char** argv) {
 }
 
 void GL3::init() {
+	once = 0;
 	glMatrixMode(GL_PROJECTION);
 	glOrtho(0, WIDTH, 0, HEIGHT, -1, 1);
 	glMatrixMode(GL_MODELVIEW);
 	glLoadIdentity();
 	glClearColor(1, 1, 1, 0);
-	glClear(GL_COLOR_BUFFER_BIT);
+	glClear(GL_DEPTH_BUFFER_BIT | GL_COLOR_BUFFER_BIT);
+	glClearDepth(1.0);
 }
 
 void GL3::display() {
-	static int once = 0;
 	if (!once) {
 		drawScene();
 	}
@@ -68,248 +70,118 @@ void GL3::rtclick(int val) {
 
 void GL3::loadScene(char* argv) {
 	num_lights = num_spheres = num_triangles = 0;
-	int num_objects = 0, count = 0, vert_count = 0;
-	bool set_amb = false, set_sphere = false, set_tri = false, set_light = false, set_pos = false, set_rad = false, set_dif = false, 
-		set_spe = false, set_shi = false, set_norm = false, set_col = false;
+	int num_objects = 0;
+	char type[50];
+	FILE* file;
 	Triangle tri;
 	Sphere sph;
 	Light li;
-	std::ifstream file(argv);
-	if (!file.is_open()) {
-		std::cout << "Error opening file: " << argv << std::endl;
+	fopen_s(&file, argv, "r");  //try to open file
+
+	if (file != nullptr) {
+		fscanf_s(file, "%i", &num_objects);
+	}
+	else {
+		std::cout << "Error opening file." << std::endl;
 		glutLeaveMainLoop();
 	}
-	
-	std::string line, word;
-	std::stringstream ss;
-	while (getline(file, line)) {
-		ss.str(line);
-		while (getline(ss, word, ' ')) {
-			if (num_objects == 0) {  //get number of objects
-				num_objects = std::stoi(word);
-				continue;
+
+	std::cout << "Number of objects: " << num_objects << std::endl;
+	parse_doubles(file, "amb:", ambient_light);
+
+	for (int i = 0; i < num_objects; i++) {
+		fscanf_s(file, "%s\n", type, _countof(type));
+		std::cout << "Type of: " << type << std::endl;
+
+		if (_stricmp(type, "triangle") == 0) {
+			std::cout << "Found triangle." << std::endl;
+
+			for (int j = 0; j < 3; j++) {
+				parse_doubles(file, "pos:", tri.vert[j].position);
+				parse_doubles(file, "nor:", tri.vert[j].normal);
+				parse_doubles(file, "dif:", tri.vert[j].color_diffuse);
+				parse_doubles(file, "spe:", tri.vert[j].color_specular);
+				parse_shi(file, &tri.vert[j].shininess);
 			}
-			if (set_amb) {  //set up ambient light
-				if (count < 3) {
-					ambient_light[count] = std::stod(word);
-					count++;
-					if (count == 3) {
-						count = 0;
-						set_amb = false;
-					}
-					continue;
-				}
+
+			if (num_triangles == MAX_TRIANGLES) {
+				std::cout << "Too many triangles; you should increase MAX_TRIANGLES!" << std::endl;
+				glutLeaveMainLoop();
 			}
-			if (set_sphere) {  //set up spheres
-				if (set_pos) {  //set sphere position
-					if (count < 3) {
-						sph.position[count] = std::stod(word);
-						count++;
-						if (count == 3) {
-							count = 0;
-							set_pos = false;
-						}
-						continue;
-					}
-				}
-				if (set_rad) {	//set sphere radius
-					sph.radius = std::stod(word);
-					set_rad = false;
-					continue;
-				}
-				if (set_dif) {  //set sphere color diffuse
-					if (count < 3) {
-						sph.color_diffuse[count] = std::stod(word);
-						count++;
-						if (count == 3) {
-							count = 0;
-							set_dif = false;
-						}
-						continue;
-					}
-				}
-				if (set_spe) {  //set sphere color specular
-					if (count < 3) {
-						sph.color_specular[count] = std::stod(word);
-						count++;
-						if (count == 3) {
-							count = 0;
-							set_spe = false;
-						}
-						continue;
-					}
-				}
-				if (set_shi) {  //set sphere shininess
-					sph.shininess = std::stod(word);
-					set_shi = false;
-					set_sphere = false;
-					spheres[num_spheres] = sph;
-					num_spheres++;
-					continue;
-				}
-				if (word == "pos:") {
-					set_pos = true;
-					continue;
-				}
-				if (word == "rad:") {
-					set_rad = true;
-					continue;
-				}
-				if (word == "dif:") {
-					set_dif = true;
-					continue;
-				}
-				if (word == "spe:") {
-					set_spe = true;
-					continue;
-				}
-				if (word == "shi:") {
-					set_shi = true;
-					continue;
-				}
-			}
-			if (set_tri) {  //set up triangles
-				if (vert_count < 3) {
-					if (set_pos) {  //set triangle vertex position
-						if (count < 3) {
-							tri.vert[vert_count].position[count] = std::stod(word);
-							count++;
-							if (count == 3) {
-								count = 0;
-								set_pos = false;
-							}
-							continue;
-						}
-					}
-					if (set_norm) {	//set triangle vertex normal
-						if (count < 3) {
-							tri.vert[vert_count].normal[count] = std::stod(word);
-							count++;
-							if (count == 3) {
-								count = 0;
-								set_norm = false;
-							}
-							continue;
-						}
-					}
-					if (set_dif) {  //set triangle vertex color diffuse
-						if (count < 3) {
-							tri.vert[vert_count].color_diffuse[count] = std::stod(word);
-							count++;
-							if (count == 3) {
-								count = 0;
-								set_dif = false;
-							}
-							continue;
-						}
-					}
-					if (set_spe) {  //set triangle vertex color specular
-						if (count < 3) {
-							tri.vert[vert_count].color_specular[count] = std::stod(word);
-							count++;
-							if (count == 3) {
-								count = 0;
-								set_spe = false;
-							}
-							continue;
-						}
-					}
-					if (set_shi) {  //set triangle vertex shininess
-						tri.vert[vert_count].shininess = std::stod(word);
-						set_shi = false;
-						vert_count++;
-						if (vert_count == 3) {
-							vert_count = 0;
-							set_tri = false;
-							triangles[num_triangles] = tri;
-							num_triangles++;
-						}
-						continue;
-					}
-					if (word == "pos:") {
-						set_pos = true;
-						continue;
-					}
-					if (word == "nor:") {
-						set_norm = true;
-						continue;
-					}
-					if (word == "dif:") {
-						set_dif = true;
-						continue;
-					}
-					if (word == "spe:") {
-						set_spe = true;
-						continue;
-					}
-					if (word == "shi:") {
-						set_shi = true;
-						continue;
-					}
-				}
-			}
-			if (set_light) {
-				if (set_pos) {
-					if (count < 3) {
-						li.position[count] = std::stod(word);
-						count++;
-						if (count == 3) {
-							count = 0;
-							set_pos = false;
-						}
-						continue;
-					}
-				}
-				if (set_col) {
-					if (count < 3) {
-						li.color[count] = std::stod(word);
-						count++;
-						if (count == 3) {
-							count = 0;
-							set_col = false;
-							set_light = false;
-							lights[num_lights] = li;
-							num_lights++;
-						}
-						continue;
-					}
-				}
-				if (word == "pos:") {
-					set_pos = true;
-					continue;
-				}
-				if (word == "col:") {
-					set_col = true;
-					continue;
-				}
-			}
-			if (word == "amb:") {
-				set_amb = true;
-				continue;
-			}
-			if (word == "sphere") {
-				set_sphere = true;
-				continue;
-			}
-			if (word == "triangle") {
-				set_tri = true;
-				continue;
-			}
-			if (word == "light") {
-				set_light = true;
-				continue;
-			}
+			triangles[num_triangles++] = tri;
 		}
-		ss.clear();
+		else if (_stricmp(type, "sphere") == 0) {
+			std::cout << "Found sphere." << std::endl;
+			parse_doubles(file, "pos:", sph.position);
+			parse_rad(file, &sph.radius);
+			parse_doubles(file, "dif:", sph.color_diffuse);
+			parse_doubles(file, "spe:", sph.color_specular);
+			parse_shi(file, &sph.shininess);
+
+			if (num_spheres == MAX_SPHERES) {
+				std::cout << "Too many spheres; you should increase MAX_SPHERES!" << std::endl;
+				glutLeaveMainLoop();
+			}
+			spheres[num_spheres++] = sph;
+		}
+		else if (_stricmp(type, "light") == 0) {
+			std::cout << "Found light." << std::endl;
+			parse_doubles(file, "pos:", li.position);
+			parse_doubles(file, "col:", li.color);
+
+			if (num_lights == MAX_LIGHTS) {
+				std::cout << "Too many lights; you should increase MAX_LIGHTS!" << std::endl;
+				glutLeaveMainLoop();
+			}
+			lights[num_lights++] = li;
+		}
+		else {
+			std::cout << "Unknown type in scene description: " << type << std::endl;
+			glutLeaveMainLoop();
+		}
 	}
-	
-	if (num_objects != num_lights + num_spheres + num_triangles) {
-		std::cout << "Error parsing file: " << argv << std::endl;
+
+	if (file != nullptr) {
+		fclose(file);
+	}
+	else {
+		std::cout << "Error closing file." << std::endl;
 		glutLeaveMainLoop();
 	}
-	
-	std::cout << "Scene file loaded." << std::endl;
-	file.close();
+
+	std::cout << "File loaded." << std::endl;
+}
+
+void GL3::parse_check(char* expected, char* found) {
+	if (_stricmp(expected, found)) {
+		std::cout << "Expected: " << expected << "; found: " << found << std::endl;
+		std::cout << "Parse error, abnormal abortion." << std::endl;
+		glutLeaveMainLoop();
+	}
+}
+
+void GL3::parse_doubles(FILE* file, char* check, double p[3]) {
+	char str[100];
+	fscanf_s(file, "%s", str, _countof(str));
+	parse_check(check, str);
+	fscanf_s(file, "%lf %lf %lf", &p[0], &p[1], &p[2]);
+	printf("%s %lf %lf %lf\n", check, p[0], p[1], p[2]);
+}
+
+void GL3::parse_rad(FILE* file, double* r) {
+	char str[100];
+	fscanf_s(file, "%s", str, _countof(str));
+	parse_check("rad:", str);
+	fscanf_s(file, "%lf", r);
+	printf("rad: %f\n", *r);
+}
+
+void GL3::parse_shi(FILE* file, double* shi) {
+	char str[100];
+	fscanf_s(file, "%s", str, _countof(str));
+	parse_check("shi:", str);
+	fscanf_s(file, "%lf", shi);
+	printf("shi: %f\n", *shi);
 }
 
 void GL3::drawScene() {
@@ -463,9 +335,9 @@ double* GL3::raytracer(double origin[3], double dir[3]) {
 			else {
 				diff[j] = alpha * tri->vert[0].color_diffuse[j] + beta * tri->vert[1].color_diffuse[j] + gamma * tri->vert[2].color_diffuse[j];
 				diff[j] *= max(dotLN, 0.0);  //calculate diffuse part for triangle
-				spec[j] = alpha * tri->vert[0].color_specular[i] + beta * tri->vert[1].color_specular[i] + gamma * tri->vert[2].color_specular[i];
+				spec[j] = alpha * tri->vert[0].color_specular[j] + beta * tri->vert[1].color_specular[j] + gamma * tri->vert[2].color_specular[j];
 				shiny = alpha * tri->vert[0].shininess + beta * tri->vert[1].shininess + gamma * tri->vert[2].shininess;
-				spec[i] *= pow(max(dotRV, 0.0), shiny);  //calculate specular part for triangle
+				spec[j] *= pow(max(dotRV, 0.0), shiny);  //calculate specular part for triangle
 			}
 		}
 
