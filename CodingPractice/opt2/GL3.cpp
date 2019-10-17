@@ -1,8 +1,8 @@
-#include "GL3.h"
 #include <iostream>
 #include <string>
 #include <cstdio>
 #include <cstdlib>
+#include "GL3.h"
 
 constexpr auto PI = 3.14159265358979;
 constexpr auto ZERO = 1e-4;
@@ -85,6 +85,7 @@ void GL3::loadScene(char* argv) {
 		std::cout << "Error opening file." << std::endl;
 		glutLeaveMainLoop();
 	}
+
 
 	std::cout << "Number of objects: " << num_objects << std::endl;
 	parse_doubles(file, "amb:", ambient_light);
@@ -335,9 +336,9 @@ double* GL3::raytracer(double origin[3], double dir[3]) {
 			else {
 				diff[j] = alpha * tri->vert[0].color_diffuse[j] + beta * tri->vert[1].color_diffuse[j] + gamma * tri->vert[2].color_diffuse[j];
 				diff[j] *= max(dotLN, 0.0);  //calculate diffuse part for triangle
-				spec[j] = alpha * tri->vert[0].color_specular[j] + beta * tri->vert[1].color_specular[j] + gamma * tri->vert[2].color_specular[j];
+				spec[j] = alpha * tri->vert[0].color_specular[i] + beta * tri->vert[1].color_specular[i] + gamma * tri->vert[2].color_specular[i];
 				shiny = alpha * tri->vert[0].shininess + beta * tri->vert[1].shininess + gamma * tri->vert[2].shininess;
-				spec[j] *= pow(max(dotRV, 0.0), shiny);  //calculate specular part for triangle
+				spec[i] *= pow(max(dotRV, 0.0), shiny);  //calculate specular part for triangle
 			}
 		}
 

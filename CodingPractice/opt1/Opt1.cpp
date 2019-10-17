@@ -1,6 +1,4 @@
 #include <iostream>
-#include <string>
-#include <sstream>
 #include "Opt1.h"
 
 Opt1::Opt1() {

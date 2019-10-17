@@ -159,6 +159,8 @@
     <ClCompile Include="opt2\GL2.cpp" />
     <ClCompile Include="opt2\GL3.cpp" />
     <ClCompile Include="opt2\Opt2.cpp" />
+    <ClCompile Include="opt3\Opt3.cpp" />
+    <ClCompile Include="opt3\Postfix.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="opt1\Hashtable.h" />
@@ -170,6 +172,8 @@
     <ClInclude Include="opt2\GL3.h" />
     <ClInclude Include="opt2\GLinclude.h" />
     <ClInclude Include="opt2\Opt2.h" />
+    <ClInclude Include="opt3\Opt3.h" />
+    <ClInclude Include="opt3\Postfix.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
