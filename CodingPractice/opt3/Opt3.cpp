@@ -53,5 +53,16 @@ void Opt3::run() {
 }
 
 void Opt3::postfix_calc() {
-	std::cout << "Not ready yet.\n" << std::endl;
+	std::string input;
+
+	std::cout << "This is a simple postfix calculator. The operator goes after the two numbers to be operated on." << std::endl;
+	std::cout << "Examples: 3 4 + = 7.\n6 5 + 8 - = 4.\n7 4 / 6 - 3 5 * + = 10.75\n" << std::endl;
+	std::cout << "Please enter the equation to be calculated. Make sure there is a space between each number and operation.\n" << std::endl;
+	std::cout << ">";
+
+	std::getline(std::cin, input);
+
+	Postfix* pnc = new Postfix();
+	pnc->run(input);
+	delete pnc;
 }
