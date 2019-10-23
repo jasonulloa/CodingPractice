@@ -9,9 +9,13 @@ class Postfix {
 		Postfix();
 		~Postfix();
 		void run(std::string input);
-		double calculate(std::vector<std::string> inputs);
 
 	private:
+		double calculate(std::vector<std::string> inputs, int& error);
+		bool is_operator(const std::string s);
+		bool is_number(const std::string s);
+		double resolve(double left, double right, std::string op);
+
 		List<double> stack;
 };
 #endif

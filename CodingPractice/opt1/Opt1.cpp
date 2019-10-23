@@ -18,7 +18,8 @@ void Opt1::run() {
 	menu << "1. Doubly Linked List Tests" << std::endl;
 	menu << "2. Unordered Set Tests" << std::endl;
 	menu << "3. Hashtable Tests" << std::endl;
-	menu << "4. Return to Main Menu" << std::endl << ">";
+	menu << "4. N-ary Heap Tests" << std::endl;
+	menu << "5. Return to Main Menu" << std::endl << ">";
 
 	while (loop) {  //loop until "Exit" is selected
 		std::cout << menu.str();
@@ -48,6 +49,10 @@ void Opt1::run() {
 				break;
 			}
 			case 4: {
+				heap_test();
+				break;
+			}
+			case 5: {
 				std::cout << "Returning to Main Menu.\n" << std::endl;
 				loop = false;
 				break;
@@ -347,4 +352,8 @@ void Opt1::ht_test() {
 
 	std::cout << "\nEnd of tests." << std::endl;
 	delete ht1;
+}
+
+void Opt1::heap_test() {
+	std::cout << "Still under development." << std::endl;
 }

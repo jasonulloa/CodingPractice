@@ -10,6 +10,8 @@ class Opt2 {
 		Opt2();
 		~Opt2();
 		void run();
+
+	private:
 		void gl_test();
 		void gl_view_test();
 		void gl_raytracer();

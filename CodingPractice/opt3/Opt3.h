@@ -8,6 +8,8 @@ class Opt3 {
 		Opt3();
 		~Opt3();
 		void run();
+
+	private:
 		void postfix_calc();
 };
 #endif
