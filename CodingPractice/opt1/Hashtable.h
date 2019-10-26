@@ -100,9 +100,11 @@ Hashtable<T>& Hashtable<T>::operator=(const Hashtable<T>& other) {
 	for (int i = 0; i < this->table_size; i++) {
 		data[i] = new std::vector<T>;
 		std::vector<T>* othervec = other.get_vector(i);
-		for (unsigned int i = 0; i < othervec->size(); i++) {
-			T tempval = (*othervec)[i];
-			data[i]->emplace_back(tempval);
+		if (!othervec->empty()) {
+			for (unsigned int j = 0; j < othervec->size(); j++) {
+				T tempval = (*othervec)[j];
+				data[i]->emplace_back(tempval);
+			}
 		}
 	}
 
