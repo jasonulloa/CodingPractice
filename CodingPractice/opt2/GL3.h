@@ -23,6 +23,14 @@ typedef struct _Sphere {
 	double radius;
 } Sphere;
 
+typedef struct _SphereGlass {
+	double position[3];
+	double color_surface[3];
+	double transparency;
+	double reflectivity;
+	double radius;
+} SphereGlass;
+
 typedef struct _Light {
 	double position[3];
 	double color[3];
@@ -38,12 +46,16 @@ namespace GL3 {
 	void parse_doubles(FILE* file, char* check, double p[3]);
 	void parse_rad(FILE* file, double* r);
 	void parse_shi(FILE* file, double* shi);
+	void parse_trn(FILE* file, double* trn);
+	void parse_rfl(FILE* file, double* rfl);
 	void drawScene();
-	double* raytracer(double origin[3], double dir[3]);
+	double* raytracer(double origin[3], double dir[3], int depth);
 	bool intersect_sphere(double origin[3], double dir[3], Sphere ball, double& hitdist);
+	bool intersect_glasssphere(double origin[3], double dir[3], SphereGlass gball, double& hitdist);
 	bool intersect_triangle(double origin[3], double dir[3], Triangle tri, double &hitdist, double &alpha, double &beta, double &gamma);
 	void normalize(double v[3]);
 	double dot(double a[3], double b[3]);
 	void cross(double a[3], double b[3], double result[3]);
+	double lerp(double a, double b, double step);
 }
 #endif

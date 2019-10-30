@@ -1,7 +1,5 @@
 #include <iostream>
 #include <string>
-#include <cstdio>
-#include <cstdlib>
 #include "GL3.h"
 
 constexpr auto PI = 3.14159265358979;
@@ -9,17 +7,21 @@ constexpr auto ZERO = 1e-4;
 constexpr auto INFINITY_DBL = 1.79769e+308;
 constexpr auto WIDTH = 640;
 constexpr auto HEIGHT = 480;
+constexpr auto MAX_DEPTH = 5;
 constexpr auto MAX_TRIANGLES = 2000;
 constexpr auto MAX_SPHERES = 20;
+constexpr auto MAX_GLASS = 20;
 constexpr auto MAX_LIGHTS = 10;
 constexpr auto FOV = 60.0;
 
 Triangle triangles[MAX_TRIANGLES];
 Sphere spheres[MAX_SPHERES];
+SphereGlass glassballs[MAX_GLASS];
 Light lights[MAX_LIGHTS];
 double ambient_light[3];
 int num_triangles;
 int num_spheres;
+int num_glassballs;
 int num_lights;
 int once;
 
@@ -69,12 +71,13 @@ void GL3::rtclick(int val) {
 }
 
 void GL3::loadScene(char* argv) {
-	num_lights = num_spheres = num_triangles = 0;
+	num_lights = num_spheres = num_glassballs = num_triangles = 0;
 	int num_objects = 0;
 	char type[50];
 	FILE* file;
 	Triangle tri;
 	Sphere sph;
+	SphereGlass gball;
 	Light li;
 	fopen_s(&file, argv, "r");  //try to open file
 
@@ -85,7 +88,6 @@ void GL3::loadScene(char* argv) {
 		std::cout << "Error opening file." << std::endl;
 		glutLeaveMainLoop();
 	}
-
 
 	std::cout << "Number of objects: " << num_objects << std::endl;
 	parse_doubles(file, "amb:", ambient_light);
@@ -124,6 +126,20 @@ void GL3::loadScene(char* argv) {
 				glutLeaveMainLoop();
 			}
 			spheres[num_spheres++] = sph;
+		}
+		else if (_stricmp(type, "sphere.glass") == 0) {
+			std::cout << "Found glass sphere." << std::endl;
+			parse_doubles(file, "pos:", gball.position);
+			parse_rad(file, &gball.radius);
+			parse_doubles(file, "srf:", gball.color_surface);
+			parse_trn(file, &gball.transparency);
+			parse_rfl(file, &gball.reflectivity);
+
+			if (num_glassballs == MAX_GLASS) {
+				std::cout << "Too many glass spheres; you should increase MAX_GLASS!" << std::endl;
+				glutLeaveMainLoop();
+			}
+			glassballs[num_glassballs++] = gball;
 		}
 		else if (_stricmp(type, "light") == 0) {
 			std::cout << "Found light." << std::endl;
@@ -185,6 +201,22 @@ void GL3::parse_shi(FILE* file, double* shi) {
 	printf("shi: %f\n", *shi);
 }
 
+void GL3::parse_trn(FILE* file, double* trn) {
+	char str[100];
+	fscanf_s(file, "%s", str, _countof(str));
+	parse_check("trn:", str);
+	fscanf_s(file, "%lf", trn);
+	printf("trn: %f\n", *trn);
+}
+
+void GL3::parse_rfl(FILE* file, double* rfl) {
+	char str[100];
+	fscanf_s(file, "%s", str, _countof(str));
+	parse_check("rfl:", str);
+	fscanf_s(file, "%lf", rfl);
+	printf("rfl: %f\n", *rfl);
+}
+
 void GL3::drawScene() {
 	unsigned int x, y;
 	double origin[] = { 0.0, 0.0, 0.0 };
@@ -200,7 +232,9 @@ void GL3::drawScene() {
 			yndc *= angle;
 			double ray[] = { xndc, yndc, -1 };
 			normalize(ray);
-			double* color = raytracer(origin, ray);
+			int depth = 0;
+			double* color;
+			color = raytracer(origin, ray, depth);
 			glColor3d(color[0], color[1], color[2]);
 			glVertex2i(x, y);
 			delete[] color;
@@ -210,12 +244,13 @@ void GL3::drawScene() {
 	glFlush();
 }
 
-double* GL3::raytracer(double origin[3], double dir[3]) {
+double* GL3::raytracer(double origin[3], double dir[3], int depth) {
 	double closest = INFINITY_DBL;
 	Sphere* ball = nullptr;
+	SphereGlass* gball = nullptr;
 	Triangle* tri = nullptr;
 	double alpha = 0.0, beta = 0.0, gamma = 0.0;
-	double* color = new double[3];
+	double *color = new double[3];
 
 	for (int i = 0; i < num_spheres; i++) {  //check spheres
 		double hitdist = 0.0;
@@ -223,6 +258,19 @@ double* GL3::raytracer(double origin[3], double dir[3]) {
 			if (hitdist < closest) {
 				closest = hitdist;
 				ball = &spheres[i];  //save ptr to closest sphere
+			}
+		}
+	}
+
+	for (int i = 0; i < num_glassballs; i++) {  //check glass spheres
+		double hitdist = 0.0;
+		if (intersect_glasssphere(origin, dir, glassballs[i], hitdist)) {
+			if (hitdist < closest) {
+				closest = hitdist;
+				gball = &glassballs[i];  //save ptr to closest glass sphere
+				if (ball != nullptr) {  //if ball is behind glass ball, clear sphere ptr
+					ball = nullptr;
+				}
 			}
 		}
 	}
@@ -239,11 +287,14 @@ double* GL3::raytracer(double origin[3], double dir[3]) {
 				if (ball != nullptr) {  //if ball is behind triangle, clear sphere ptr
 					ball = nullptr;
 				}
+				if (gball != nullptr) {  //if glass ball is behind triangle, clear glass sphere ptr
+					gball = nullptr;
+				}
 			}
 		}
 	}
 
-	if (ball == nullptr && tri == nullptr) {  //no intersections
+	if (ball == nullptr && gball == nullptr && tri == nullptr) {  //no intersections
 		for (int i = 0; i < 3; i++) {
 			color[i] = 1.0;  //hit nothing, return white background color
 		}
@@ -258,12 +309,15 @@ double* GL3::raytracer(double origin[3], double dir[3]) {
 		if (ball != nullptr) {
 			impact_norm[i] = (impact[i] - ball->position[i]) / ball->radius;  //normal to intersectionon sphere
 		}
+		else if (gball != nullptr) {
+			impact_norm[i] = (impact[i] - gball->position[i]) / gball->radius;
+		}
 		else {
 			impact_norm[i] = alpha * tri->vert[0].normal[i] + beta * tri->vert[1].normal[i] + gamma * tri->vert[2].normal[i];
 		}
 	}
 	normalize(impact_norm);  //the N unit vector
-	double vDir[] = { -dir[0], -dir[1], -dir[2] };
+	double vDir[] = { -dir[0], -dir[1], -dir[2] };  //toward the eye
 
 	for (int i = 0; i < num_lights; i++) {
 		double transmission[] = { 1.0, 1.0, 1.0 };  //0.0 if blocked, 1.0 if not
@@ -327,25 +381,73 @@ double* GL3::raytracer(double origin[3], double dir[3]) {
 		}
 
 		double dotRV = dot(rDir, vDir), shiny = 0.0;
-		double diff[] = { 0.0, 0.0, 0.0 }, spec[] = { 0.0, 0.0, 0.0 };
-		for (int j = 0; j < 3; j++) {
-			if (ball != nullptr) {
-				diff[j] = ball->color_diffuse[j] * max(dotLN, 0.0);  //calculate diffuse part for sphere
-				spec[j] = ball->color_specular[j] * pow(max(dotRV, 0.0), ball->shininess);  //calculate specular part for sphere
-			}
-			else {
-				diff[j] = alpha * tri->vert[0].color_diffuse[j] + beta * tri->vert[1].color_diffuse[j] + gamma * tri->vert[2].color_diffuse[j];
-				diff[j] *= max(dotLN, 0.0);  //calculate diffuse part for triangle
-				spec[j] = alpha * tri->vert[0].color_specular[i] + beta * tri->vert[1].color_specular[i] + gamma * tri->vert[2].color_specular[i];
-				shiny = alpha * tri->vert[0].shininess + beta * tri->vert[1].shininess + gamma * tri->vert[2].shininess;
-				spec[i] *= pow(max(dotRV, 0.0), shiny);  //calculate specular part for triangle
+		double diff[] = { 0.0, 0.0, 0.0 }, spec[] = { 0.0, 0.0, 0.0 }, lightcontrib[] = { 0.0, 0.0, 0.0 };
+
+		if (gball != nullptr) {  //for non-diffuse
+			if (depth < MAX_DEPTH) {  //if depth is < 5
+				bool inside = false;
+				double* reflection = new double[3], * refraction = new double[3];
+
+				if (dot(dir, impact_norm) > 0) {
+					inside = true;
+					for (int j = 0; j < 3; j++) {
+						impact_norm[j] *= -1;
+					}
+				}
+
+				double facing_ratio = -dot(dir, impact_norm);
+				double fresnel_effect = lerp(pow(1.0 - facing_ratio, 3.0), 1.0, 0.1);
+				double refldir[] = { 0.0, 0.0, 0.0 }, refrdir[] = { 0.0, 0.0, 0.0 };
+				double dotDirImpNorm = dot(dir, impact_norm);
+				for (int j = 0; j < 3; j++) {
+					refldir[j] = dir[j] - impact_norm[j] * 2 * dotDirImpNorm;
+					reflection[j] = refraction[j] = 0.0;  //initialize reflection and refraction arrays here
+				}
+				normalize(refldir);
+				double refl_origin[] = { impact[0] + impact_norm[0], impact[1] + impact_norm[1], impact[2] + impact_norm[2] };
+				reflection = raytracer(refl_origin, refldir, depth + 1);
+
+				if (gball->transparency > 0) {
+					double ior = 1.3;
+					double eta = (inside) ? 1 / ior : ior;  //if inside or outside the surface
+					double cosi = -dotDirImpNorm;
+					double k = 1 - eta * eta * (1 - cosi * cosi);
+					for (int j = 0; j < 3; j++) {
+						refrdir[j] = dir[j] * eta + impact_norm[j] * (eta * cosi - sqrt(k));
+					}
+					normalize(refrdir);
+					double refr_origin[] = { impact[0] - impact_norm[0], impact[1] - impact_norm[1], impact[2] - impact_norm[2] };
+					refraction = raytracer(refr_origin, refrdir, depth + 1);
+				}
+
+				for (int j = 0; j < 3; j++) {
+					lightcontrib[j] = (reflection[j] * fresnel_effect + refraction[j] * (1 - fresnel_effect) * gball->transparency) * gball->color_surface[j];
+					color[j] += lightcontrib[j];
+				}
+
+				delete[] reflection;
+				delete[] refraction;
 			}
 		}
+		else {  //for diffuse
+			for (int j = 0; j < 3; j++) {
+				if (ball != nullptr) {
+					diff[j] = ball->color_diffuse[j] * max(dotLN, 0.0);  //calculate diffuse part for sphere
+					spec[j] = ball->color_specular[j] * pow(max(dotRV, 0.0), ball->shininess);  //calculate specular part for sphere
+				}
+				else {
+					diff[j] = alpha * tri->vert[0].color_diffuse[j] + beta * tri->vert[1].color_diffuse[j] + gamma * tri->vert[2].color_diffuse[j];
+					diff[j] *= max(dotLN, 0.0);  //calculate diffuse part for triangle
+					spec[j] = alpha * tri->vert[0].color_specular[j] + beta * tri->vert[1].color_specular[j] + gamma * tri->vert[2].color_specular[j];
+					shiny = alpha * tri->vert[0].shininess + beta * tri->vert[1].shininess + gamma * tri->vert[2].shininess;
+					spec[j] *= pow(max(dotRV, 0.0), shiny);  //calculate specular part for triangle
+				}
+			}
 
-		double lightcontrib[] = { 0.0, 0.0, 0.0 };
-		for (int j = 0; j < 3; j++) {
-			lightcontrib[j] = lights[i].color[j] * transmission[j] * (diff[j] + spec[j]);  //calculate final light contribution
-			color[j] += lightcontrib[j];
+			for (int j = 0; j < 3; j++) {
+				lightcontrib[j] = lights[i].color[j] * transmission[j] * (diff[j] + spec[j]);  //calculate final light contribution
+				color[j] += lightcontrib[j];
+			}
 		}
 	}
 
@@ -405,6 +507,16 @@ bool GL3::intersect_sphere(double origin[3], double dir[3], Sphere ball, double&
 
 	hitdist = hit1;
 	return true;
+}
+
+bool GL3::intersect_glasssphere(double origin[3], double dir[3], SphereGlass gball, double& hitdist) {
+	Sphere testball;
+	testball.radius = gball.radius;
+	for (int i = 0; i < 3; i++) {
+		testball.position[i] = gball.position[i];
+	}
+	
+	return intersect_sphere(origin, dir, testball, hitdist);
 }
 
 bool GL3::intersect_triangle(double origin[3], double dir[3], Triangle tri, double& hitdist, double& alpha, double& beta, double& gamma) {
@@ -480,4 +592,9 @@ void GL3::cross(double a[3], double b[3], double result[3]) {
 	result[0] = a[1] * b[2] - a[2] * b[1];
 	result[1] = a[2] * b[0] - a[0] * b[2];
 	result[2] = a[0] * b[1] - a[1] * b[0];
+}
+
+double GL3::lerp(double a, double b, double step) {
+	double result = b * step + a * (1 - step);
+	return result;
 }

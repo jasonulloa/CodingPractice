@@ -18,7 +18,8 @@ void Opt3::run() {
 	std::ostringstream menu;
 	menu << "\nOption #3: Recoded USC CS Stuff\n" << std::endl;
 	menu << "1. Simple Postfix Calculator" << std::endl;
-	menu << "2. Return to Main Menu" << std::endl << ">";
+	menu << "2. Sudoku Solver" << std::endl;
+	menu << "3. Return to Main Menu" << std::endl << ">";
 
 	while (loop) {  //loop until "Exit" is selected
 		std::cout << menu.str();
@@ -40,6 +41,10 @@ void Opt3::run() {
 				break;
 			}
 			case 2: {
+				sudoku_solver();
+				break;
+			}
+			case 3: {
 				std::cout << "Returning to Main Menu.\n" << std::endl;
 				loop = false;
 				break;
@@ -55,8 +60,8 @@ void Opt3::run() {
 void Opt3::postfix_calc() {
 	std::string input;
 
-	std::cout << "This is a simple postfix calculator. The operator goes after the two numbers to be operated on." << std::endl;
-	std::cout << "Examples: 3 4 + = 7.\n6 5 + 8 - = 3.\n7 4 / 6 - 3 5 * + = 10.75.\n" << std::endl;
+	std::cout << "This is a simple postfix calculator. The operator goes after the two numbers to be operated on.\n";
+	std::cout << "Examples: 3 4 + = 7.\n6 5 + 8 - = 3.\n7 4 / 6 - 3 5 * + = 10.75.\n\n";
 	std::cout << "Please enter the equation to be calculated. Make sure there is a space between each number and operation.\n" << std::endl;
 	std::cout << ">";
 
@@ -65,4 +70,48 @@ void Opt3::postfix_calc() {
 	Postfix* pnc = new Postfix();
 	pnc->run(input);
 	delete pnc;
+}
+
+void Opt3::sudoku_solver() {
+	std::cout << "This is a sudoku solver. Just enter the known numbers, one at a time, from left to right, top to bottom.\n";
+	std::cout << "If a space is blank, enter '0' as the number.\nBe careful, because once a number is entered, it is final.\n\n";
+	std::cout << "Please enter the numbers below:" << std::endl;
+
+	int puzzle[9][9];
+	for (int i = 0; i < 9; i++) {
+		for (int j = 0; j < 9; j++) {
+			int entry = 0;
+			std::string inputstr;
+			std::cout << "Entry [" << i + 1 << "][" << j + 1 << "]: ";
+			while (std::getline(std::cin, inputstr)) {  //read user entry
+
+				std::stringstream sstr(inputstr);
+				if (sstr >> entry) {  //if the entry is an int
+					if (sstr.eof()) {  //if entry is only an int
+						if (entry < 0) {  //if entry is negative, loop again
+							std::cout << "Negative numbers are invalid. Please enter a valid number." << std::endl;
+							continue;
+						}
+						if (entry > 9) {  //if entry is more than 9, loop again
+							std::cout << "Numbers larger than 9 are invalid. Please enter a valid number." << std::endl;
+							continue;
+						}
+
+						break;  //escape input loop if entry is between 0 and 9
+					}
+				}
+				std::cout << "Please make a valid selection." << std::endl;
+			}  //escape input loop
+
+			puzzle[i][j] = entry;
+		}
+	}
+
+	Sudoku* doki = new Sudoku(puzzle);
+	doki->print();
+	doki->solve();
+	doki->verify();
+	doki->print();
+
+	delete doki;
 }

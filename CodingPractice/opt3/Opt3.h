@@ -2,6 +2,7 @@
 #ifndef OPT3_H
 #define OPT3_H
 #include "Postfix.h"
+#include "Sudoku.h"
 
 class Opt3 {
 	public:
@@ -11,5 +12,6 @@ class Opt3 {
 
 	private:
 		void postfix_calc();
+		void sudoku_solver();
 };
 #endif

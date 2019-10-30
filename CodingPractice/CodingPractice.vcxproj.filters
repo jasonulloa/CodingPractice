@@ -39,6 +39,9 @@
     <ClCompile Include="opt3\Postfix.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="opt3\Sudoku.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="opt1\List.h">
@@ -72,6 +75,9 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="opt3\Postfix.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="opt3\Sudoku.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>

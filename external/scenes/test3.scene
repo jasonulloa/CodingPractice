@@ -1,11 +1,20 @@
-2
-amb: 0.3 0.3 0.3
-sphere
+4
+amb: 0.1 0.1 0.1
+sphere.glass
 pos: 0.0 0.0 -3.0
 rad: 1
-dif: 0.3 0.3 0.3
+srf: 0.2 0.2 0.2
+trn: 0.95
+rfl: 1
+sphere
+pos: 2.0 2.5 -8.0
+rad: 1
+dif: 0.01 0.13 0.5
 spe: 0.5 0.5 0.5
-shi: 1
+shi: 5
 light
-pos: 0 0 -6.0
+pos: 0 1 -6.0
 col: 0.25 0.5 1.0
+light
+pos: 0 -5 -3
+col: 0.6 0.3 0.3
