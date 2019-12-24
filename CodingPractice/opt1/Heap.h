@@ -7,23 +7,24 @@
 #include <utility>
 
 class HeapException : public std::exception {
-private:
-	bool emptyHeap;
-public:
-	HeapException(bool b) {
-		emptyHeap = b;
-	}
+	private:
+		bool emptyHeap;
 
-	std::string what() {
-		if (emptyHeap) {
-			std::string message = "HeapException: The heap is empty.\n";
+	public:
+		HeapException(bool b) {
+			emptyHeap = b;
+		}
+
+		std::string what() {
+			if (emptyHeap) {
+				std::string message = "HeapException: The heap is empty.\n";
+
+				return message;
+			}
+			std::string message = "HeapException: The heap only supports min-heap and max-heap operations.\n";
 
 			return message;
 		}
-		std::string message = "HeapException: The heap only supports min-heap and max-heap operations.\n";
-
-		return message;
-	}
 };
 
 template <typename T, typename Comparator>

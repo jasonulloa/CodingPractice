@@ -13,5 +13,6 @@ class Opt3 {
 	private:
 		void postfix_calc();
 		void sudoku_solver();
+		void sliding_tile_solver();
 };
 #endif
